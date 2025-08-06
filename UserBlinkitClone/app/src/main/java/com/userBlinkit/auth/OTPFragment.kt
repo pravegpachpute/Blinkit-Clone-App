@@ -14,6 +14,7 @@ import androidx.navigation.fragment.findNavController
 import com.userBlinkit.R
 import com.userBlinkit.activity.UsersMainActivity
 import com.userBlinkit.databinding.FragmentOTPBinding
+import com.userBlinkit.models.Users
 import com.userBlinkit.utils.Utils
 import com.userBlinkit.viewModels.AuthViewModal
 import kotlinx.coroutines.launch
@@ -50,22 +51,11 @@ class OTPFragment : Fragment() {
         }
     }
 
-//    private fun verifyOTP(otp: String) { // Login
-//        val user = Users(uId = Utils.getCurrentUserId(), userPhoneNumber = userNumber, userAddress = null)
-//
-//        viewModel.signInWithPhoneAuthCredential(otp, userNumber, user)
-//        lifecycleScope.launch {
-//            viewModel.isSignedInSuccessfully.collect {
-//                if(it){
-//                    Utils.hideDialog()
-//                    Utils.showToast(requireContext(), "Logged In...")
-//                }
-//            }
-//        }
-//    }
-
     private fun verifyOTP(otp: String) {
-        viewModel.signInWithPhoneAuthCredential(otp, userNumber)
+
+        val user = Users(uId = null, userPhoneNumber = userNumber, userAddress = " ")
+
+        viewModel.signInWithPhoneAuthCredential(otp, userNumber, user)
 
         lifecycleScope.launch {
             viewModel.isSignedInSuccessfully.collect {

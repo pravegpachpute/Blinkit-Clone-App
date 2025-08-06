@@ -8,6 +8,7 @@ import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.messaging.FirebaseMessaging
 import com.userBlinkit.models.Users
 import com.userBlinkit.utils.Utils
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -58,47 +59,61 @@ class AuthViewModal: ViewModel() {
         PhoneAuthProvider.verifyPhoneNumber(options)
     }
 
-//     fun signInWithPhoneAuthCredential(otp: String, userNumber: String, user: Users) {
-//        val credential = PhoneAuthProvider.getCredential(_verificationId.value.toString(), otp)
+    fun signInWithPhoneAuthCredential(otp: String, userNumber: String, user: Users) {
+         val credential = PhoneAuthProvider.getCredential(_verificationId.value.toString(), otp)
+
+        //Cloud messaging.
+        FirebaseMessaging.getInstance().token.addOnCompleteListener {
+            user.userToken = it.result
+            Utils.getAuthInstance().signInWithCredential(credential)
+                .addOnCompleteListener { task ->
+                    user.uId = Utils.getCurrentUserId()
+                    if (task.isSuccessful) {
+                        FirebaseDatabase.getInstance().getReference("AllUsers").child("Users").child(user.uId!!).setValue(user)
+                        Log.d("DEBUG_UID", "✅ UID is: $user.uId")
+                        _isSignedInSuccessfully.value = true
+                    }
+                }
+        }
+     }
+
+}
+
+
+
+
+
+
+
+
+//    fun signInWithPhoneAuthCredential(otp: String, userNumber: String) {
+//        val credential = PhoneAuthProvider.getCredential(_verificationId.value ?: "", otp)
+//
 //        Utils.getAuthInstance().signInWithCredential(credential)
 //            .addOnCompleteListener { task ->
 //                if (task.isSuccessful) {
-//                    FirebaseDatabase.getInstance().getReference("AllUsers").child("Users").child(user.uId!!).setValue(user)
-//                    Log.d("DEBUG_UID", "✅ UID is: $user.uId")
-//                    _isSignedInSuccessfully.value = true
+//                    val firebaseUser = Utils.getAuthInstance().currentUser
+//                    val userId = firebaseUser?.uid
+//
+//                    if (!userId.isNullOrEmpty()) {
+//                        val user = Users(uId = userId, userPhoneNumber = userNumber, userAddress = null)
+//
+//                        FirebaseDatabase.getInstance().getReference("AllUsers").child("Users").child(userId).setValue(user)
+//                            .addOnSuccessListener {
+//                                _isSignedInSuccessfully.value = true
+//                            }
+//                            .addOnFailureListener {
+//                                _isSignedInSuccessfully.value = false
+//                            }
+//                        Log.d("DEBUG_UID", "UID is: $userId")
+//
+//                    } else {
+//                        // UID is null, handle error
+//                        _isSignedInSuccessfully.value = false
+//                    }
+//                } else {
+//                    // Sign-in failed
+//                    _isSignedInSuccessfully.value = false
+//                }
 //            }
 //    }
-
-    fun signInWithPhoneAuthCredential(otp: String, userNumber: String) {
-        val credential = PhoneAuthProvider.getCredential(_verificationId.value ?: "", otp)
-
-        Utils.getAuthInstance().signInWithCredential(credential)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val firebaseUser = Utils.getAuthInstance().currentUser
-                    val userId = firebaseUser?.uid
-
-                    if (!userId.isNullOrEmpty()) {
-                        val user = Users(uId = userId, userPhoneNumber = userNumber, userAddress = null)
-
-                        FirebaseDatabase.getInstance().getReference("AllUsers").child("Users").child(userId).setValue(user)
-                            .addOnSuccessListener {
-                                _isSignedInSuccessfully.value = true
-                            }
-                            .addOnFailureListener {
-                                _isSignedInSuccessfully.value = false
-                            }
-                        Log.d("DEBUG_UID", "UID is: $userId")
-
-                    } else {
-                        // UID is null, handle error
-                        _isSignedInSuccessfully.value = false
-                    }
-                } else {
-                    // Sign-in failed
-                    _isSignedInSuccessfully.value = false
-                }
-            }
-    }
-
-}

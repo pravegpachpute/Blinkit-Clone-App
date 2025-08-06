@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     id("com.google.gms.google-services")
+    id("kotlin-kapt")
 }
 
 android {
@@ -28,11 +29,11 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     buildFeatures{
         viewBinding = true
@@ -80,4 +81,31 @@ dependencies {
 
     // notification
     implementation("com.google.firebase:firebase-messaging-ktx:24.1.1")
+
+    //Image slider
+    implementation("com.github.denzcoskun:ImageSlideshow:0.1.2")
+
+    //Shimmer effect
+    implementation("com.facebook.shimmer:shimmer:0.5.0@aar")
+
+    //room database
+    val room_version = "2.6.1"
+    implementation("androidx.room:room-runtime:$room_version")
+    annotationProcessor("androidx.room:room-compiler:$room_version")
+
+    // To use Kotlin annotation processing tool (kapt)
+    kapt("androidx.room:room-compiler:$room_version")
+    implementation("androidx.room:room-ktx:$room_version")
+
+    //glide
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor ("com.github.bumptech.glide:compiler:4.15.0")
+
+    // phone pay
+    implementation("phonepe.intentsdk.android.release:IntentSDK:2.3.0")
+
+    //retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
 }
